@@ -1,9 +1,12 @@
 <template>
+  <!-- 预览图片组件，文件类型为3即图片 -->
   <PreviewImage
     ref="imageViewerRef"
     :imageList="[imageUrl]"
     v-if="fileInfo.fileCategory == 3"
   ></PreviewImage>
+
+  <!-- 预览除图片外的文件窗口，文件类型为1即视频，窗口宽度为1500 -->
   <Window
     :show="windowShow"
     @close="closeWindow"
@@ -12,6 +15,7 @@
     :align="fileInfo.fileCategory == 1 ? 'center' : 'top'"
     v-else
   >
+    <!-- 预览视频、Excel、Docx、Pdf、文本 -->
     <PreviewVideo :url="url" v-if="fileInfo.fileCategory == 1"></PreviewVideo>
     <PreviewExcel :url="url" v-if="fileInfo.fileType == 6"></PreviewExcel>
     <PreviewDoc :url="url" v-if="fileInfo.fileType == 5"></PreviewDoc>
@@ -20,12 +24,15 @@
       :url="url"
       v-if="fileInfo.fileType == 7 || fileInfo.fileType == 8"
     ></PreviewTxt>
-    <!--特殊预览-->
+
+    <!-- 预览音频 -->
     <PreviewMusic
       :url="url"
       :fileName="fileInfo.fileName"
       v-if="fileInfo.fileCategory == 2"
     ></PreviewMusic>
+
+    <!--  预览其他文件，需要下载-->
     <PreviewDownload
       :createDownloadUrl="createDownloadUrl"
       :downloadUrl="downloadUrl"
@@ -52,9 +59,7 @@ const router = useRouter();
 const route = useRoute();
 
 const imageUrl = computed(() => {
-  return (
-    proxy.globalInfo.imageUrl + fileInfo.value.fileCover.replaceAll("_.", ".")
-  );
+  return proxy.globalInfo.imageUrl + fileInfo.value.fileCover.replaceAll("_.", ".");
 });
 
 const windowShow = ref(false);
@@ -97,10 +102,12 @@ const showPreview = (data, showPart) => {
   } else {
     windowShow.value = true;
     let _url = FILE_URL_MAP[showPart].fileUrl;
+
     //视频地址单独处理
     if (data.fileCategory == 1) {
       _url = FILE_URL_MAP[showPart].videoUrl;
     }
+    
     let _createDownloadUrl = FILE_URL_MAP[showPart].createDownloadUrl;
     let _downloadUrl = FILE_URL_MAP[showPart].downloadUrl;
     if (showPart == 0) {
@@ -108,12 +115,10 @@ const showPreview = (data, showPart) => {
       _createDownloadUrl = _createDownloadUrl + "/" + data.fileId;
     } else if (showPart == 1) {
       _url = _url + "/" + data.userId + "/" + data.fileId;
-      _createDownloadUrl =
-        _createDownloadUrl + "/" + data.userId + "/" + data.fileId;
+      _createDownloadUrl = _createDownloadUrl + "/" + data.userId + "/" + data.fileId;
     } else if (showPart == 2) {
       _url = _url + "/" + data.shareId + "/" + data.fileId;
-      _createDownloadUrl =
-        _createDownloadUrl + "/" + data.shareId + "/" + data.fileId;
+      _createDownloadUrl = _createDownloadUrl + "/" + data.shareId + "/" + data.fileId;
     }
     url.value = _url;
     createDownloadUrl.value = _createDownloadUrl;
@@ -123,5 +128,4 @@ const showPreview = (data, showPart) => {
 defineExpose({ showPreview });
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

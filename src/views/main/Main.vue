@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 上传、新建、删除、移动按钮-->
     <div class="top">
       <div class="top-op">
         <div class="btn">
@@ -16,6 +17,7 @@
             </el-button>
           </el-upload>
         </div>
+
         <el-button type="success" @click="newFolder" v-if="category == 'all'">
           <span class="iconfont icon-folder-add"></span>
           新建文件夹
@@ -53,6 +55,8 @@
       <!--导航-->
       <Navigation ref="navigationRef" @navChange="navChange"></Navigation>
     </div>
+
+    <!-- 目录下的文件列表 -->
     <div class="file-list" v-if="tableData.list && tableData.list.length > 0">
       <Table
         ref="dataTableRef"
@@ -70,9 +74,7 @@
             @mouseenter="showOp(row)"
             @mouseleave="cancelShowOp(row)"
           >
-            <template
-              v-if="(row.fileType == 3 || row.fileType == 1) && row.status == 2"
-            >
+            <template v-if="(row.fileType == 3 || row.fileType == 1) && row.status == 2">
               <icon :cover="row.fileCover" :width="32"></icon>
             </template>
             <template v-else>
@@ -96,50 +98,36 @@
                 <template #suffix>{{ row.fileSuffix }}</template>
               </el-input>
               <span
-                :class="[
-                  'iconfont icon-right1',
-                  row.fileNameReal ? '' : 'not-allow',
-                ]"
+                :class="['iconfont icon-right1', row.fileNameReal ? '' : 'not-allow']"
                 @click="saveNameEdit(index)"
               ></span>
-              <span
-                class="iconfont icon-error"
-                @click="cancelNameEdit(index)"
-              ></span>
+              <span class="iconfont icon-error" @click="cancelNameEdit(index)"></span>
             </div>
             <span class="op">
               <template v-if="row.showOp && row.fileId && row.status == 2">
-                <span class="iconfont icon-share1" @click="share(row)"
-                  >分享</span
-                >
+                <span class="iconfont icon-share1" @click="share(row)">分享</span>
                 <span
                   class="iconfont icon-download"
                   @click="download(row)"
                   v-if="row.folderType == 0"
                   >下载</span
                 >
-                <span class="iconfont icon-del" @click="delFile(row)"
-                  >删除</span
-                >
-                <span
-                  class="iconfont icon-edit"
-                  @click.stop="editFileName(index)"
+                <span class="iconfont icon-del" @click="delFile(row)">删除</span>
+                <span class="iconfont icon-edit" @click.stop="editFileName(index)"
                   >重命名</span
                 >
-                <span class="iconfont icon-move" @click="moveFolder(row)"
-                  >移动</span
-                >
+                <span class="iconfont icon-move" @click="moveFolder(row)">移动</span>
               </template>
             </span>
           </div>
         </template>
         <template #fileSize="{ index, row }">
-          <span v-if="row.fileSize">
-            {{ proxy.Utils.size2Str(row.fileSize) }}</span
-          >
+          <span v-if="row.fileSize"> {{ proxy.Utils.size2Str(row.fileSize) }}</span>
         </template>
       </Table>
     </div>
+
+    <!-- 目录下文件为空情况 -->
     <div class="no-data" v-else>
       <div class="no-data-inner">
         <Icon iconName="no_data" :width="120" fit="fill"></Icon>
@@ -164,13 +152,12 @@
         </div>
       </div>
     </div>
-    <!--预览-->
+
+    <!-- 预览模块 -->
     <Preview ref="previewRef"> </Preview>
+
     <!--移动-->
-    <FolderSelect
-      ref="folderSelectRef"
-      @folderSelect="moveFolderDone"
-    ></FolderSelect>
+    <FolderSelect ref="folderSelectRef" @folderSelect="moveFolderDone"></FolderSelect>
     <!--分享-->
     <FileShare ref="shareRef"></FileShare>
   </div>
@@ -185,13 +172,16 @@ const { proxy } = getCurrentInstance();
 const router = useRouter();
 const route = useRoute();
 const emit = defineEmits(["addFile"]);
+
 //添加文件
 const addFile = async (fileData) => {
   emit("addFile", { file: fileData.file, filePid: currentFolder.value.fileId });
 };
+
 //添加文件回调
 const reload = () => {
   showLoading.value = false;
+  //重新加载
   loadDataList();
 };
 defineExpose({
@@ -240,6 +230,7 @@ const search = () => {
   showLoading.value = true;
   loadDataList();
 };
+
 //列表
 const tableData = ref({});
 const tableOptions = {
@@ -251,6 +242,7 @@ const fileNameFuzzy = ref();
 const showLoading = ref(true);
 const category = ref();
 
+//加载文件
 const loadDataList = async () => {
   let params = {
     pageNo: tableData.value.pageNo,
@@ -475,6 +467,7 @@ const moveFolderDone = async (folderId) => {
   loadDataList();
 };
 
+// 文件预览
 const previewRef = ref();
 const navigationRef = ref();
 const preview = (data) => {
